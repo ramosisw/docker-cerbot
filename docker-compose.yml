@@ -6,6 +6,7 @@ services:
   cerbot:
     image: ramosisw/cerbot
     container_name: cerbot
+    ## Remove build section to use the compiled docker image
     build:
       context: .
     volumes:
