@@ -1,0 +1,12 @@
+# Used locally for development
+
+version: '3.7'
+
+services:
+  cerbot:
+    image: ramosisw/cerbot
+    container_name: cerbot
+    build:
+      context: .
+    volumes:
+        - ./etc/letsencrypt:/etc/letsencrypt
