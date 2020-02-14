@@ -1,0 +1,119 @@
+---
+kind: pipeline
+type: docker
+name: linux-amd64
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+  - name: build amd64
+    image: plugins/docker
+    settings:
+      repo: ramosisw/cerbot
+      tags: ${DRONE_TAG=nightly}-amd64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+trigger:
+  event:
+    - push
+    - tag
+  
+---
+kind: pipeline
+type: docker
+name: linux-arm64
+
+platform:
+  arch: arm64
+  os: linux
+
+steps:
+  - name: build arm64
+    image: plugins/docker
+    settings:
+      repo: ramosisw/cerbot
+      tags: ${DRONE_TAG=nightly}-arm64
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+trigger:
+  event:
+    - push
+    - tag
+
+---
+kind: pipeline
+type: docker
+name: linux-arm
+
+platform:
+  arch: arm
+  os: linux
+
+steps:
+  - name: build arm 
+    image: plugins/docker
+    settings:
+      repo: ramosisw/cerbot
+      tags: ${DRONE_TAG=nightly}-arm
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+
+trigger:
+  event:
+    - push
+    - tag
+
+----
+kind: pipeline
+name: manifest
+
+steps:
+  - name: manifest latest
+    image: plugins/manifest
+    settings:
+      username: 
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: ramosisw/cerbot:latest
+      template: ramosisw/cerbot:${DRONE_TAG=nightly}-ARCH
+      platforms:
+        - linux/arm
+        - linux/arm64
+        - linux/amd64
+    when:
+      event: tag
+
+  - name: manifest ${DRONE_TAG=nightly}
+    image: plugins/manifest
+    settings:
+      username: 
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      target: ramosisw/cerbot:${DRONE_TAG=nightly}
+      template: ramosisw/cerbot:${DRONE_TAG=nightly}-ARCH
+      platforms:
+        - linux/arm
+        - linux/arm64
+        - linux/amd64
+    when:
+      event: push
+
+trigger:
+  event: [ tag, push ]
+
+depends_on:
+  - linux-arm
+  - linux-arm64
+  - linux-amd64
